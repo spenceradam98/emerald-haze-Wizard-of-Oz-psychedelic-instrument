@@ -41,6 +41,8 @@ public:
     juce::MidiKeyboardState keyboardState;
 
     int getThemeIndex() const { return themeIndex; }
+    bool getStoryView() const { return storyView; }
+    void setStoryView (bool b);
     void setThemeIndex (int i);
 
 private:
@@ -49,6 +51,7 @@ private:
     std::atomic<float>* master = nullptr;
     juce::SmoothedValue<float> masterGain;
     int themeIndex = 0;
+    bool storyView = true;
     std::unique_ptr<juce::PropertiesFile> settings;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EmeraldHazeProcessor)

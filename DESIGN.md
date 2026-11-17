@@ -1,4 +1,4 @@
-# Emerald Haze: psychedelic storybook synthesiser (design plan, v0.1)
+# Emerald Haze: psychedelic storybook synthesiser (design plan, v0.2)
 
 A polyphonic instrument themed on L. Frank Baum's *The Wonderful Wizard of Oz* (1900, public
 domain). Every sound, name and picture is original. Names and imagery come from the **book**, not
@@ -60,6 +60,12 @@ in `Documents/EmeraldHaze/Presets/`.
 
 All artwork is drawn in code (no bitmaps), so the UI scales cleanly (50-150%).
 
+Two pages, switched from the header (the last one used is remembered):
+- **Storybook** (default): Layer A and B characters with Colour and Level, the four Journey macros
+  (A > B, Cyclone, Wind, Poppies), the "Spells" FX switches and a Colour & Space strip (cutoff,
+  reso, sway, shimmer, echo/hall mix, master). Most of the theme's illustration stays visible.
+- **Workshop**: every parameter.
+
 | Theme | Background | Knobs |
 |---|---|---|
 | Yellow Brick Road | brick road winding to a glowing horizon | chicken-head |
@@ -75,9 +81,14 @@ All artwork is drawn in code (no bitmaps), so the UI scales cleanly (50-150%).
 Renders every preset to WAV, flags NaN / silence / clipping, snapshots the editor in every theme,
 and calibrates preset loudness. v0.1 result: 62/62 presets clean.
 
-## Next steps (not in v0.1)
+## Decisions (v0.2)
 
-- A big illustrated "Journey" front page (macro view) with the detailed editor behind a tab.
+- Name: **Emerald Haze** (working name, easy to change: `PRODUCT_NAME` in CMakeLists.txt).
+- Book-only theming: no ruby slippers, film songs or film imagery (those are Warner Bros IP).
+- Next feature chosen and built: the Storybook macro page.
+
+## Next steps (not yet built)
+
 - Arpeggiator / "Munchkin march" step sequencer; tempo-synced LFOs; mod matrix.
 - More characters (Glinda bubble pads, Hammerhead thumps, China Country porcelain plucks, Winkies).
 - Optional sampled layer (recorded original sources: music box, harmonium, toy piano).

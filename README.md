@@ -2,7 +2,7 @@
 
 A psychedelic storybook synthesiser (VST3 / AU / Standalone) themed on *The Wonderful Wizard of Oz*
 (the 1900 public-domain book). Two layers of ten story "characters", Journey / Cyclone / Wind /
-Poppies macros, Twister, Rainbow Prism, Kansas lo-fi, Road Echo and a shimmer reverb, 62 presets
+Poppies macros on an illustrated Storybook page (plus a Workshop page with every control), Twister, Rainbow Prism, Kansas lo-fi, Road Echo and a shimmer reverb, 62 presets
 and 7 storybook themes. See `DESIGN.md`, `docs/screenshots/` and `docs/demo-reel.mp3`.
 
 ## Build

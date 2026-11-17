@@ -92,20 +92,25 @@ int main (int argc, char** argv)
     ed->setSize (EmeraldHazeEditor::designW, EmeraldHazeEditor::designH);
     for (int t = 0; t < (int) getThemes().size(); ++t)
     {
-        if (auto* pe = dynamic_cast<EmeraldHazeEditor*> (ed.get()))
         {
             proc.setThemeIndex (t);
             // re-create to apply theme from processor
             ed.reset (proc.createEditor());
             ed->setSize (EmeraldHazeEditor::designW, EmeraldHazeEditor::designH);
         }
-        auto img = ed->createComponentSnapshot (ed->getLocalBounds(), true, 1.0f);
-        auto f = out.getChildFile ("theme-" + juce::String (t + 1) + "-" + juce::File::createLegalFileName (getThemes()[(size_t) t].name).replace (" ", "-") + ".png");
-        f.deleteFile();
-        juce::PNGImageFormat png;
-        if (auto os = f.createOutputStream()) png.writeImageToStream (img, *os);
+        for (int view = 0; view < 2; ++view)
+        {
+            if (auto* pe = dynamic_cast<EmeraldHazeEditor*> (ed.get())) pe->setStoryView (view == 0);
+            auto img = ed->createComponentSnapshot (ed->getLocalBounds(), true, 1.0f);
+            auto f = out.getChildFile ("theme-" + juce::String (t + 1) + "-" + juce::File::createLegalFileName (getThemes()[(size_t) t].name).replace (" ", "-").replace ("'", "")
+                                       + (view == 0 ? "-storybook" : "-workshop") + ".png");
+            f.deleteFile();
+            juce::PNGImageFormat png;
+            if (auto os = f.createOutputStream()) png.writeImageToStream (img, *os);
+        }
     }
     ed.reset();
     proc.setThemeIndex (0);
+    proc.setStoryView (true);
     return problems == 0 ? 0 : 1;
 }

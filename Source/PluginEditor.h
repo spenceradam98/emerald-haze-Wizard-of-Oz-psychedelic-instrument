@@ -49,6 +49,7 @@ public:
     void resized() override;
 
     static constexpr int designW = 1400, designH = 830;
+    void setStoryView (bool story); // Storybook (macros) or Workshop (every control) page
 
 private:
     class Content : public juce::Component
@@ -71,9 +72,11 @@ private:
     juce::TooltipWindow tooltips { this, 600 };
 
     juce::ComboBox categoryBox, presetBox, themeBox;
+    juce::TextButton viewButton { "Workshop" };
     juce::TextButton prevButton { "<" }, nextButton { ">" }, saveButton { "Save" }, initButton { "Init" };
     juce::MidiKeyboardComponent keyboard;
-    std::vector<std::unique_ptr<Section>> rows[5];
+    std::vector<std::unique_ptr<Section>> rows[5];   // Workshop page: every control
+    std::vector<std::unique_ptr<Section>> story[2];  // Storybook page: the big macros
     std::unique_ptr<juce::AlertWindow> saveDialog;
     juce::String shownCategory;
 

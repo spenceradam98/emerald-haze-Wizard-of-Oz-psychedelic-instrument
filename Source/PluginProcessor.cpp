@@ -21,6 +21,14 @@ EmeraldHazeProcessor::EmeraldHazeProcessor()
     master = apvts.getRawParameterValue ("master");
     settings = std::make_unique<juce::PropertiesFile> (settingsOptions());
     themeIndex = settings->getIntValue ("theme", 0);
+    storyView = settings->getBoolValue ("storyView", true);
+}
+
+void EmeraldHazeProcessor::setStoryView (bool b)
+{
+    storyView = b;
+    settings->setValue ("storyView", b);
+    settings->saveIfNeeded();
 }
 
 void EmeraldHazeProcessor::setThemeIndex (int i)

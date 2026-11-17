@@ -161,9 +161,24 @@ EmeraldHazeEditor::EmeraldHazeEditor (EmeraldHazeProcessor& p)
     add (4, std::make_unique<Section> (s, "Emerald Hall", List {
         { "revSize", "Size" }, { "revDamp", "Damping" }, { "revShimmer", "Shimmer" }, { "revWidth", "Width" }, { "revMix", "Mix" } }, "revOn"));
 
+    // ---- Storybook page: the characters, the four Journey macros and the spell switches
+    auto addStory = [&] (int row, std::unique_ptr<Section> sec) { content.addChildComponent (*sec); story[row].push_back (std::move (sec)); };
+    addStory (0, std::make_unique<Section> (s, "Layer A", List {
+        { "layAChar", "Character" }, { "layAColour", "Colour" }, { "layALevel", "Level" } }));
+    addStory (0, std::make_unique<Section> (s, "The Journey", List {
+        { "journey", "A > B" }, { "cyclone", "Cyclone" }, { "wind", "Wind" }, { "poppies", "Poppies" } }));
+    addStory (0, std::make_unique<Section> (s, "Layer B", List {
+        { "layBChar", "Character" }, { "layBColour", "Colour" }, { "layBLevel", "Level" } }));
+    addStory (1, std::make_unique<Section> (s, "Spells", List {
+        { "twsOn", "Twister" }, { "twsFast", "Spin Fast" }, { "prsOn", "Prism" }, { "knsOn", "Kansas" },
+        { "dlyOn", "Echo" }, { "revOn", "Hall" } }));
+    addStory (1, std::make_unique<Section> (s, "Colour & Space", List {
+        { "cutoff", "Cutoff" }, { "reso", "Reso" }, { "journeyMod", "Sway" }, { "revShimmer", "Shimmer" },
+        { "dlyMix", "Echo Mix" }, { "revMix", "Hall Mix" }, { "master", "Master" } }));
+
     // ---- Header
     for (auto* c : { (juce::Component*) &categoryBox, (juce::Component*) &presetBox, (juce::Component*) &themeBox,
-                     (juce::Component*) &prevButton, (juce::Component*) &nextButton, (juce::Component*) &saveButton,
+                     (juce::Component*) &viewButton, (juce::Component*) &prevButton, (juce::Component*) &nextButton, (juce::Component*) &saveButton,
                      (juce::Component*) &initButton, (juce::Component*) &keyboard })
         content.addAndMakeVisible (c);
 
@@ -179,6 +194,8 @@ EmeraldHazeEditor::EmeraldHazeEditor (EmeraldHazeProcessor& p)
         const int id = presetBox.getSelectedId();
         if (id > 0 && id - 1 != proc.presets.getCurrentIndex()) proc.presets.load (id - 1);
     };
+    viewButton.setTooltip ("Switch between the Storybook page (big macros) and the Workshop page (every control)");
+    viewButton.onClick = [this] { setStoryView (! proc.getStoryView()); };
     prevButton.onClick = [this] { proc.presets.step (-1); };
     nextButton.onClick = [this] { proc.presets.step (1); };
     initButton.onClick = [this] { proc.presets.loadInit(); };
@@ -196,6 +213,7 @@ EmeraldHazeEditor::EmeraldHazeEditor (EmeraldHazeProcessor& p)
     content.setSize (designW, designH);
     refreshCategoryBox();
     applyTheme (proc.getThemeIndex());
+    setStoryView (proc.getStoryView());
 
     setResizable (true, true);
     setResizeLimits (designW / 2, designH / 2, designW * 3 / 2, designH * 3 / 2);
@@ -207,6 +225,16 @@ EmeraldHazeEditor::~EmeraldHazeEditor()
 {
     proc.presets.onPresetChanged = nullptr;
     setLookAndFeel (nullptr);
+}
+
+void EmeraldHazeEditor::setStoryView (bool storyView)
+{
+    proc.setStoryView (storyView);
+    viewButton.setButtonText (storyView ? "Workshop" : "Storybook");
+    for (auto& row : rows) for (auto& sec : row) sec->setVisible (! storyView);
+    for (auto& row : story) for (auto& sec : row) sec->setVisible (storyView);
+    content.resized();
+    content.repaint();
 }
 
 void EmeraldHazeEditor::applyTheme (int index)
@@ -314,11 +342,35 @@ void EmeraldHazeEditor::Content::resized()
     e.nextButton.setBounds (hdr.removeFromRight (30)); hdr.removeFromRight (4);
     e.prevButton.setBounds (hdr.removeFromRight (30)); hdr.removeFromRight (6);
     e.presetBox.setBounds (hdr.removeFromRight (260)); hdr.removeFromRight (6);
-    e.categoryBox.setBounds (hdr.removeFromRight (150));
+    e.categoryBox.setBounds (hdr.removeFromRight (150)); hdr.removeFromRight (16);
+    e.viewButton.setBounds (hdr.removeFromRight (100));
 
     e.keyboard.setBounds (r.removeFromBottom (78).reduced (0, 6));
     e.keyboard.setKeyWidth ((float) e.keyboard.getWidth() / 50.0f); // 24..108 = 50 white keys
     e.keyboard.setLowestVisibleKey (24);
+
+    auto layoutRow = [] (std::vector<std::unique_ptr<Section>>& row, juce::Rectangle<int> rr, int gap)
+    {
+        float total = 0;
+        for (auto& s : row) total += s->numControls();
+        const float unit = (float) (rr.getWidth() - gap * ((int) row.size() - 1)) / total;
+        float x = (float) rr.getX();
+        for (auto& s : row)
+        {
+            const float w = unit * s->numControls();
+            s->setBounds (juce::Rectangle<float> (x, (float) rr.getY(), w, (float) rr.getHeight()).toNearestInt());
+            x += w + (float) gap;
+        }
+    };
+
+    if (e.proc.getStoryView())
+    {   // big characters + macros on top, spells along the bottom, the theme's artwork in between
+        auto top = r.removeFromTop (290).reduced (40, 10);
+        layoutRow (e.story[0], top, 24);
+        auto bottom = r.removeFromBottom (150).reduced (40, 10);
+        layoutRow (e.story[1], bottom, 24);
+        return;
+    }
 
     const int rowH = (r.getHeight() - 4) / 5;
     for (auto& row : e.rows)
